@@ -1,5 +1,5 @@
 [Unit]
-Description=Portainer with Docker Compose
+Description=Dagu with Docker Compose
 After=network.target
 
 [Service]
