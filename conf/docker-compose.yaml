@@ -1,16 +1,50 @@
 version: "3"
 services:
-  portainer:
-    image: portainer/portainer-ce:2.19.1
+
+  # init container updates permission
+  init:
+    image: yohamta/dagu:1.12.4
+    user: root
+    volumes:
+      - dagu:/home/dagu/.dagu
+    command: chown -R dagu /home/dagu/.dagu/
+    
+  # ui server process
+  server:
+    image: yohamta/dagu:1.12.4
+    environment:
+      - DAGU_PORT=8080
+      - DAGU_DAGS=/home/dagu/.dagu/dags
+      - DAGU_IS_BASIC_AUTH=1
+      - DAGU_BASIC_AUTH_USERNAME=admin
+      - DAGU_BASIC_AUTH_PASSWORD=admin42
+    restart: unless-stopped
     ports:
-    - target: 9443
+    - target: 8080
       host_ip: 127.0.0.1
       published: "__PORT__"
       protocol: tcp
       mode: host
     volumes:
-    - ./data:/data
-    - /var/run/docker.sock:/var/run/docker.sock
-    restart: unless-stopped
+      - dagu:/home/dagu/.dagu
+      - ./dags/:/home/dagu/.dagu/dags
     extra_hosts:
       host.docker.internal: host-gateway
+    depends_on:
+      - init
+
+  # scheduler process
+  scheduler:
+    image: yohamta/dagu:1.12.4
+    environment:
+      - DAGU_DAGS=/home/dagu/.dagu/dags
+    restart: unless-stopped
+    volumes:
+      - dagu:/home/dagu/.dagu
+      - ./dags/:/home/dagu/.dagu/dags
+    command: dagu scheduler
+    depends_on:
+      - init
+
+volumes:
+  dagu: {}
