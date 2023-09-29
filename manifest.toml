@@ -1,9 +1,9 @@
 packaging_format = 2
 
-id = "portainer"
-name = "Portainer"
-description.en = "Deploy, configure, troubleshoot and secure containers in minutes on Docker"
-description.fr = "Déployez, configurez, dépannez et sécurisez les conteneurs en quelques minutes sur Docker"
+id = "dagu"
+name = "Dagu"
+description.en = "Dagu is a powerful Cron alternative that comes with a Web UI. It allows you to define dependencies between commands as a Directed Acyclic Graph (DAG) in a declarative YAML Format."
+description.fr = "Dagu is a powerful Cron alternative that comes with a Web UI. It allows you to define dependencies between commands as a Directed Acyclic Graph (DAG) in a declarative YAML Format."
 
 version = "2.19.1~ynh1"
 
@@ -12,10 +12,10 @@ maintainers = ["pbrisacier@mncc.fr"]
 [upstream]
 # NB: Only the "license" key is mandatory. Remove entries for which there's no relevant data
 license = "Zlib"
-website = "https://www.portainer.io/"
-admindoc = "https://docs.portainer.io/v/2.18/admin/users"
-userdoc = "https://docs.portainer.io/v/2.18/user/home"
-code = "https://github.com/portainer/portainer"
+website = "https://dagu.readthedocs.io/"
+admindoc = "https://dagu.readthedocs.io/"
+userdoc = "https://dagu.readthedocs.io/"
+code = "https://github.com/dagu-dev/dagu"
 
 [integration]
 yunohost = ">= 11.1.21"
@@ -35,26 +35,7 @@ ram.runtime = "50M"
     [install.path]
     # this is a generic question - ask strings are automatically handled by YunoHost's core
     type = "path"
-    default = "/portainer"
-
-    [install.init_main_permission]
-    # this is a generic question - ask strings are automatically handled by YunoHost's core
-    # This won't be saved as setting and will instead be used to initialize the SSOwat permission
-    type = "group"
-    default = "admins"
-
-    [install.admin]
-    # this is a generic question - ask strings are automatically handled by YunoHost's core
-    type = "user"
-    help.en = "Portainer admin Username will be this user's username"
-    help.fr = "Le login de l'administrateur de Portainer sera le login de cet utilisateur"
-
-    [install.password]
-    # this is a generic question - ask strings are automatically handled by YunoHost's core
-    # Note that user-provided passwords questions are not automatically saved as setting
-    help.en = "Choose the Portainer admin password"
-    help.fr = "Choisissez le mot de passe de l'administrateur de Portainer"
-    type = "password"
+    default = "/dagu"
 
 [resources]
     # See the packaging documentation for the full set
