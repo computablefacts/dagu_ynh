@@ -91,7 +91,7 @@ ynh_add_systemd_config
 ###		- As well as the section "INTEGRATE SERVICE IN YUNOHOST" in the restore script
 ###		- And the section "INTEGRATE SERVICE IN YUNOHOST" in the upgrade script
 
-yunohost service add $app --description="Portainer" --log="/var/log/$app/$app.log" --test_status "docker compose ls | grep /$app/"
+yunohost service add $app --description="Dagu" --log="/var/log/$app/$app.log" --test_status "docker compose ls | grep /$app/"
 
 ### Additional options starting with 3.8:
 ###
@@ -159,16 +159,16 @@ ynh_add_config --template="docker-compose.yaml" --destination="$data_dir/docker-
 # So I copy it, regenerate conf files and delete it
 # NOTA: I try to generate only LDAP conf with "sudo yunohost tools regen-conf sladp" but, in this
 # case, the hook is not called.
-ynh_script_progression --message="Change LDAP configuration..." --weight=2
-mkdir -p "/etc/yunohost/hooks.d/conf_regen/"
-ynh_add_config --template="../hooks/conf_regen" --destination="/etc/yunohost/hooks.d/conf_regen/99-slapd-portainer"
-sudo yunohost tools regen-conf
-rm -f "/etc/yunohost/hooks.d/conf_regen/99-slapd-portainer"
+# ynh_script_progression --message="Change LDAP configuration..." --weight=2
+# mkdir -p "/etc/yunohost/hooks.d/conf_regen/"
+# ynh_add_config --template="../hooks/conf_regen" --destination="/etc/yunohost/hooks.d/conf_regen/99-slapd-portainer"
+# sudo yunohost tools regen-conf
+# rm -f "/etc/yunohost/hooks.d/conf_regen/99-slapd-portainer"
 
 # Firewall should allow Docker containers internal IP to reach MySQL
 # Should be the same as ../hooks/post_iptable_rules
-iptables -A INPUT -p tcp --dport 389 -s 172.17.0.0/12 -j ACCEPT
-iptables -A INPUT -p tcp --dport 389 -s 192.168.0.0/16 -j ACCEPT
+# iptables -A INPUT -p tcp --dport 389 -s 172.17.0.0/12 -j ACCEPT
+# iptables -A INPUT -p tcp --dport 389 -s 192.168.0.0/16 -j ACCEPT
 
 #=================================================
 # GENERIC FINALIZATION
@@ -187,30 +187,6 @@ ynh_script_progression --message="Starting a systemd service..." --weight=1
 
 # Start a systemd service
 ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log"
-
-#=================================================
-# SETUP APPLICATION WITH CURL
-#=================================================
-
-### Use these lines only if the app installation needs to be finalized through
-### web forms. We generally don't want to ask the final user,
-### so we're going to use curl to automatically fill the fields and submit the
-### forms.
-
-# Installation with curl
-ynh_script_progression --message="Create administrator account..." --weight=1
-ynh_local_curl "/api/users/admin/init" "{\"Username\":\"$admin\",\"Password\":\"$password\"}"
-
-ynh_script_progression --message="Setup LDAP..." --weight=1
-auth_answer=$(ynh_local_curl_extended "/api/auth" "" "" "{\"Username\":\"$admin\",\"Password\":\"$password\"}")
-extracted_bearer=$(echo "${auth_answer}" | jq -r .jwt)
-
-settings_answer=$(ynh_local_curl_extended "/api/settings" "PUT" "$extracted_bearer" "{\"AuthenticationMethod\":2,\"LDAPSettings\":{\"AnonymousMode\":true,\"ReaderDN\":\"\",\"URLs\":[\"host.docker.internal:389\"],\"ServerType\":0,\"TLSConfig\":{\"TLS\":false,\"TLSSkipVerify\":false},\"StartTLS\":false,\"SearchSettings\":[{\"BaseDN\":\"ou=users,dc=yunohost,dc=org\",\"Filter\":\"\",\"UserNameAttribute\":\"uid\"}],\"GroupSearchSettings\":[{\"GroupBaseDN\":\"ou=groups,dc=yunohost,dc=org\",\"GroupFilter\":\"\",\"GroupAttribute\":\"member\"}],\"AdminGroupSearchSettings\":[{\"GroupBaseDN\":\"\",\"GroupFilter\":\"\",\"GroupAttribute\":\"\"}],\"AutoCreateUsers\":true,\"URL\":\"host.docker.internal:389\",\"Password\":\"\"}}")
-
-
-# Requete pour changer les réglages de Portainer (collect stats). Pourrait permettre de régler la conf du LDAP... 
-# Reste le Pb du Bearer...
-# curl 'https://portainer.apps.ynh01.computablefacts.com/api/settings' -X PUT -H 'Content-Type: application/json' -H 'Authorization: Bearer eyJh...t4w' --data-raw '{"enableTelemetry":true}'
 
 #=================================================
 # END OF SCRIPT
